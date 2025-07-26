@@ -508,46 +508,93 @@ def show_legal_awareness():
 def show_login_page():
     st.title("🔐 Login / Register")
     
-    tab1, tab2 = st.tabs(["Login", "Register"])
+    # Add a back to home button
+    if st.button("← Back to Home"):
+        st.session_state.current_page = "Home"
+        st.rerun()
+    
+    tab1, tab2 = st.tabs(["🔑 Login", "📝 Register"])
     
     with tab1:
+        st.subheader("Welcome Back!")
+        st.write("Please enter your credentials to access your account.")
+        
         with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
+            username = st.text_input("👤 Username", placeholder="Enter your username")
+            password = st.text_input("🔒 Password", type="password", placeholder="Enter your password")
             
-            if st.form_submit_button("Login"):
-                result = authenticate_user(username, password)
-                if result:
-                    st.session_state.authenticated = True
-                    st.session_state.user_id = result[0]
-                    st.session_state.user_type = result[1]
-                    st.session_state.current_page = "Home"  # Redirect to home after login
-                    st.success("Login successful!")
-                    st.rerun()
+            col1, col2 = st.columns(2)
+            with col1:
+                login_button = st.form_submit_button("🚀 Login", use_container_width=True, type="primary")
+            with col2:
+                demo_button = st.form_submit_button("🎯 Demo Login", use_container_width=True)
+            
+            if login_button:
+                if username and password:
+                    result = authenticate_user(username, password)
+                    if result:
+                        st.session_state.authenticated = True
+                        st.session_state.user_id = result[0]
+                        st.session_state.user_type = result[1]
+                        st.success("✅ Login successful! Redirecting...")
+                        st.session_state.current_page = "Home"
+                        st.rerun()
+                    else:
+                        st.error("❌ Invalid credentials. Please try again.")
                 else:
-                    st.error("Invalid credentials")
+                    st.warning("⚠️ Please enter both username and password.")
+            
+            elif demo_button:
+                # Demo login for testing
+                st.session_state.authenticated = True
+                st.session_state.user_id = 999
+                st.session_state.user_type = "Citizen"
+                st.success("✅ Demo login successful! Welcome to the demo!")
+                st.session_state.current_page = "Home"
+                st.rerun()
+        
+        st.markdown("---")
+        st.info("💡 **Demo Access**: Click 'Demo Login' to explore the platform without creating an account.")
     
     with tab2:
+        st.subheader("Create New Account")
+        st.write("Join our platform to access legal aid services.")
+        
         with st.form("register_form"):
-            new_username = st.text_input("Choose Username")
-            new_password = st.text_input("Choose Password", type="password")
-            confirm_password = st.text_input("Confirm Password", type="password")
-            email = st.text_input("Email")
-            phone = st.text_input("Phone Number")
-            location = st.selectbox("Location", ["Mumbai", "Delhi", "Bangalore", "Chennai", "Pune", "Other"])
-            language = st.selectbox("Preferred Language", ["English", "Hindi", "Tamil", "Telugu", "Bengali", "Malayalam"])
-            user_type = st.selectbox("Account Type", ["Citizen", "Lawyer", "Legal Aid Worker"])
+            col1, col2 = st.columns(2)
             
-            if st.form_submit_button("Register"):
-                if new_password != confirm_password:
-                    st.error("Passwords don't match")
+            with col1:
+                new_username = st.text_input("👤 Choose Username", placeholder="Enter desired username")
+                new_password = st.text_input("🔒 Choose Password", type="password", placeholder="Minimum 6 characters")
+                email = st.text_input("📧 Email Address", placeholder="your.email@example.com")
+                phone = st.text_input("📱 Phone Number", placeholder="+91-XXXXXXXXXX")
+            
+            with col2:
+                confirm_password = st.text_input("🔒 Confirm Password", type="password", placeholder="Re-enter password")
+                location = st.selectbox("📍 Location", ["Mumbai", "Delhi", "Bangalore", "Chennai", "Pune", "Hyderabad", "Kolkata", "Other"])
+                language = st.selectbox("🗣️ Preferred Language", ["English", "Hindi", "Tamil", "Telugu", "Bengali", "Malayalam", "Kannada", "Gujarati", "Marathi"])
+                user_type = st.selectbox("👥 Account Type", ["Citizen", "Lawyer", "Legal Aid Worker"])
+            
+            register_button = st.form_submit_button("🎉 Create Account", use_container_width=True, type="primary")
+            
+            if register_button:
+                if not all([new_username, new_password, confirm_password, email, phone]):
+                    st.error("❌ Please fill in all required fields.")
+                elif new_password != confirm_password:
+                    st.error("❌ Passwords don't match. Please try again.")
                 elif len(new_password) < 6:
-                    st.error("Password must be at least 6 characters")
+                    st.error("❌ Password must be at least 6 characters long.")
+                elif "@" not in email or "." not in email:
+                    st.error("❌ Please enter a valid email address.")
                 else:
                     if register_user(new_username, new_password, email, phone, location, language, user_type):
-                        st.success("Registration successful! Please login.")
+                        st.success("🎉 Registration successful! Please login with your credentials.")
+                        st.balloons()
                     else:
-                        st.error("Username already exists")
+                        st.error("❌ Username already exists. Please choose a different username.")
+        
+        st.markdown("---")
+        st.info("📋 **Account Types**:\n- **Citizen**: Access legal aid services\n- **Lawyer**: Provide legal services\n- **Legal Aid Worker**: Manage and coordinate services")
 
 # Main application logic
 def main():
@@ -556,46 +603,96 @@ def main():
     init_sample_data()
     
     # Sidebar navigation
-    st.sidebar.title("Navigation")
+    st.sidebar.title("⚖️ Legal Aid India")
     
     if st.session_state.authenticated:
-        st.sidebar.success(f"Welcome! User ID: {st.session_state.user_id}")
-        if st.sidebar.button("Logout"):
+        st.sidebar.success(f"✅ Welcome!\n**User ID:** {st.session_state.user_id}\n**Type:** {st.session_state.user_type}")
+        
+        if st.sidebar.button("🚪 Logout", use_container_width=True, type="primary"):
             st.session_state.authenticated = False
             st.session_state.user_id = None
             st.session_state.user_type = None
             st.session_state.chat_history = []
-            st.session_state.current_page = "Home"  # Reset to home page
+            st.session_state.current_page = "Home"
+            st.success("👋 Logged out successfully!")
             st.rerun()
-    
-    # Navigation menu - dynamic based on authentication
-    if st.session_state.authenticated:
-        pages = {
-            "🏠 Home": "Home",
-            "🤖 Legal Chatbot": "Chatbot",
-            "👨‍⚖️ Find Lawyers": "Lawyers",
-            "📋 Case Tracking": "Cases",
-            "📖 Legal Awareness": "Awareness"
-        }
     else:
-        pages = {
-            "🏠 Home": "Home",
-            "🤖 Legal Chatbot": "Chatbot",
-            "👨‍⚖️ Find Lawyers": "Lawyers",
-            "📖 Legal Awareness": "Awareness",
-            "🔐 Login": "Login"
-        }
+        st.sidebar.info("👤 **Not logged in**\nSome features require authentication")
+        
+        # Quick login widget in sidebar
+        with st.sidebar.expander("🔐 Quick Login"):
+            quick_username = st.text_input("Username", key="sidebar_username", placeholder="Your username")
+            quick_password = st.text_input("Password", type="password", key="sidebar_password", placeholder="Your password")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Login", key="sidebar_login", use_container_width=True):
+                    if quick_username and quick_password:
+                        result = authenticate_user(quick_username, quick_password)
+                        if result:
+                            st.session_state.authenticated = True
+                            st.session_state.user_id = result[0]
+                            st.session_state.user_type = result[1]
+                            st.success("✅ Login successful!")
+                            st.rerun()
+                        else:
+                            st.error("❌ Invalid credentials")
+                    else:
+                        st.warning("⚠️ Enter credentials")
+            
+            with col2:
+                if st.button("Demo", key="sidebar_demo", use_container_width=True):
+                    st.session_state.authenticated = True
+                    st.session_state.user_id = 999
+                    st.session_state.user_type = "Citizen"
+                    st.success("✅ Demo mode!")
+                    st.rerun()
     
-    # Use radio buttons for better navigation experience
-    selected_page = st.sidebar.radio("Go to", list(pages.keys()), 
-                                    index=list(pages.values()).index(st.session_state.current_page) 
-                                    if st.session_state.current_page in pages.values() else 0)
+    st.sidebar.markdown("---")
     
-    # Update current page based on selection
+    # Navigation menu
+    pages = {
+        "🏠 Home": "Home",
+        "🤖 Legal Chatbot": "Chatbot",
+        "👨‍⚖️ Find Lawyers": "Lawyers",
+        "📋 Case Tracking": "Cases",
+        "📖 Legal Awareness": "Awareness"
+    }
+    
+    if not st.session_state.authenticated:
+        pages["🔐 Login / Register"] = "Login"
+    
+    # Use radio buttons for better navigation control
+    current_index = 0
+    if st.session_state.current_page in pages.values():
+        current_index = list(pages.values()).index(st.session_state.current_page)
+    
+    selected_page = st.sidebar.radio(
+        "🧭 Navigate to:",
+        list(pages.keys()),
+        index=current_index,
+        key="main_navigation"
+    )
+    
+    # Update current page when selection changes
     new_page = pages[selected_page]
     if new_page != st.session_state.current_page:
         st.session_state.current_page = new_page
         st.rerun()
+    
+    # Add some helpful information in sidebar
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🆘 Quick Help")
+    st.sidebar.markdown("""
+    - **Emergency Legal Helpline**: 1800-345-4357
+    - **NALSA Helpline**: 15100
+    - **Women Helpline**: 1091
+    - **Cyber Crime**: 1930
+    """)
+    
+    if not st.session_state.authenticated:
+        st.sidebar.markdown("---")
+        st.sidebar.info("💡 **Tip**: Use Demo mode to explore all features without creating an account!")
     
     # Route to appropriate page
     if st.session_state.current_page == "Home":
