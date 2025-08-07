@@ -30,6 +30,7 @@ st.markdown("""
     }
     .feature-card {
         background: #212529;
+        color: white;
         padding: 1.5rem;
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -38,7 +39,7 @@ st.markdown("""
     }
     .lawyer-card {
         background: #212529;
-        
+
         padding: 1rem;
         border-radius: 8px;
         margin: 0.5rem 0;
@@ -75,14 +76,14 @@ st.markdown("""
 def init_database():
     conn = sqlite3.connect('legal_aid.db')
     c = conn.cursor()
-    
+
     # Users table
     c.execute('''CREATE TABLE IF NOT EXISTS users
-                 (id INTEGER PRIMARY KEY, username TEXT UNIQUE, 
-                  password TEXT, email TEXT, phone TEXT, 
+                 (id INTEGER PRIMARY KEY, username TEXT UNIQUE,
+                  password TEXT, email TEXT, phone TEXT,
                   location TEXT, language TEXT, user_type TEXT,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-    
+
     # Lawyers table
     c.execute('''CREATE TABLE IF NOT EXISTS lawyers
                  (id INTEGER PRIMARY KEY, name TEXT, email TEXT,
@@ -90,7 +91,7 @@ def init_database():
                   location TEXT, rating REAL, fee_range TEXT,
                   verified BOOLEAN, languages TEXT,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-    
+
     # Cases table
     c.execute('''CREATE TABLE IF NOT EXISTS cases
                  (id INTEGER PRIMARY KEY, user_id INTEGER, lawyer_id INTEGER,
@@ -99,7 +100,7 @@ def init_database():
                   next_hearing TEXT, documents TEXT,
                   FOREIGN KEY(user_id) REFERENCES users(id),
                   FOREIGN KEY(lawyer_id) REFERENCES lawyers(id))''')
-    
+
     # Consultations table
     c.execute('''CREATE TABLE IF NOT EXISTS consultations
                  (id INTEGER PRIMARY KEY, user_id INTEGER, lawyer_id INTEGER,
@@ -107,14 +108,14 @@ def init_database():
                   notes TEXT, fee REAL,
                   FOREIGN KEY(user_id) REFERENCES users(id),
                   FOREIGN KEY(lawyer_id) REFERENCES lawyers(id))''')
-    
+
     # Chat messages table
     c.execute('''CREATE TABLE IF NOT EXISTS chat_messages
                  (id INTEGER PRIMARY KEY, user_id INTEGER, message TEXT,
                   response TEXT, language TEXT, category TEXT,
                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                   FOREIGN KEY(user_id) REFERENCES users(id))''')
-    
+
     conn.commit()
     conn.close()
 
@@ -138,7 +139,7 @@ def hash_password(password):
 def authenticate_user(username, password):
     conn = sqlite3.connect('legal_aid.db')
     c = conn.cursor()
-    c.execute("SELECT id, user_type FROM users WHERE username=? AND password=?", 
+    c.execute("SELECT id, user_type FROM users WHERE username=? AND password=?",
               (username, hash_password(password)))
     result = c.fetchone()
     conn.close()
@@ -149,7 +150,7 @@ def register_user(username, password, email, phone, location, language, user_typ
     c = conn.cursor()
     try:
         c.execute("""INSERT INTO users (username, password, email, phone, location, language, user_type)
-                     VALUES (?, ?, ?, ?, ?, ?, ?)""", 
+                     VALUES (?, ?, ?, ?, ?, ?, ?)""",
                   (username, hash_password(password), email, phone, location, language, user_type))
         conn.commit()
         return True
@@ -175,21 +176,21 @@ def get_legal_response(query, language="English"):
             "divorce": "भारत में तलाक दाखिल किया जा सकता है: 1) हिंदू विवाह अधिनियम, 2) भारतीय ईसाई विवाह अधिनियम, 3) विशेष विवाह अधिनियम के तहत। आधार में क्रूरता, परित्याग, धर्म परिवर्तन आदि शामिल हैं।",
         }
     }
-    
+
     query_lower = query.lower()
     responses = legal_responses.get(language, legal_responses["English"])
-    
+
     for key, response in responses.items():
         if key in query_lower:
             return response
-    
+
     return f"I understand you're asking about legal matters. For specific guidance, please consult with a verified lawyer through our platform. You can also visit our Legal Awareness section for general information about Indian laws and procedures."
 
 # Sample data initialization
 def init_sample_data():
     conn = sqlite3.connect('legal_aid.db')
     c = conn.cursor()
-    
+
     # Check if sample lawyers exist
     c.execute("SELECT COUNT(*) FROM lawyers")
     if c.fetchone()[0] == 0:
@@ -200,46 +201,52 @@ def init_sample_data():
             ("Advocate Arjun Singh", "arjun.singh@email.com", "+91-9876543213", "Consumer Rights", 5, "Chennai", 4.2, "₹300-1500", True, "English, Hindi, Telugu"),
             ("Advocate Kavita Patel", "kavita.patel@email.com", "+91-9876543214", "Employment Law", 10, "Pune", 4.6, "₹600-2000", True, "English, Hindi, Gujarati")
         ]
-        
+
         for lawyer in sample_lawyers:
-            c.execute("""INSERT INTO lawyers (name, email, phone, specialization, experience, 
+            c.execute("""INSERT INTO lawyers (name, email, phone, specialization, experience,
                          location, rating, fee_range, verified, languages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", lawyer)
-    
+
     conn.commit()
     conn.close()
 
 # Main application pages
 def show_home_page():
     st.markdown('<div class="main-header"><h1>⚖️ Legal Aid India</h1><p>Bridging the Justice Gap - Free & Affordable Legal Services</p></div>', unsafe_allow_html=True)
-    
+
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
         st.markdown("""
-        <div class="feature-card">
-            <h3>🤖 Legal Chatbot</h3>
-            <p>Get instant answers to basic legal queries in your preferred language</p>
-        </div>
+            <a href='?page=Chatbot' target='_self' style='text-decoration: none;'>
+                <div class="feature-card">
+                    <h3>🤖 Legal Chatbot</h3>
+                    <p>Get instant answers to basic legal queries in your preferred language</p>
+                </div>
+            </a>
         """, unsafe_allow_html=True)
-    
+
     with col2:
         st.markdown("""
-        <div class="feature-card">
-            <h3>👨‍⚖️ Find Lawyers</h3>
-            <p>Connect with verified lawyers for consultation and representation</p>
-        </div>
+        <a href='?page=Lawyers' target='_self' style='text-decoration: none;'>
+            <div class="feature-card">
+                <h3>👨‍⚖️ Find Lawyers</h3>
+                <p>Connect with verified lawyers for consultation and representation</p>
+            </div>
+        </a>
         """, unsafe_allow_html=True)
-    
+
     with col3:
         st.markdown("""
-        <div class="feature-card">
-            <h3>📋 Track Cases</h3>
-            <p>Monitor your case progress and important deadlines</p>
-        </div>
+        <a href='?page=Cases' target='_self' style='text-decoration: none;'>
+            <div class="feature-card">
+                <h3>📋 Track Cases</h3>
+                <p>Monitor your case progress and important deadlines</p>
+            </div>
+        </a>
         """, unsafe_allow_html=True)
-    
+
     st.markdown("---")
-    
+
     # Quick stats
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -253,12 +260,12 @@ def show_home_page():
 
 def show_chatbot_page():
     st.title("🤖 Legal Assistant Chatbot")
-    
+
     col1, col2 = st.columns([2, 1])
-    
+
     with col2:
         language = st.selectbox("Select Language", ["English", "Hindi", "Tamil", "Telugu", "Bengali", "Malayalam"])
-        
+
         st.markdown("### Quick Questions:")
         quick_questions = [
             "How to file an FIR?",
@@ -268,16 +275,16 @@ def show_chatbot_page():
             "Consumer rights protection",
             "Employment law basics"
         ]
-        
+
         for question in quick_questions:
             if st.button(question, key=f"quick_{question}"):
                 st.session_state.chat_history.append(("user", question))
                 response = get_legal_response(question, language)
                 st.session_state.chat_history.append(("bot", response))
-    
+
     with col1:
         st.markdown("### Chat with Legal Assistant")
-        
+
         # Display chat history
         chat_container = st.container()
         with chat_container:
@@ -286,15 +293,15 @@ def show_chatbot_page():
                     st.markdown(f'<div class="chat-message user-message"><strong>You:</strong> {message}</div>', unsafe_allow_html=True)
                 else:
                     st.markdown(f'<div class="chat-message bot-message"><strong>Legal Assistant:</strong> {message}</div>', unsafe_allow_html=True)
-        
+
         # Chat input
         user_input = st.text_input("Ask your legal question:", placeholder="Type your question here...")
-        
+
         if st.button("Send") and user_input:
             st.session_state.chat_history.append(("user", user_input))
             response = get_legal_response(user_input, language)
             st.session_state.chat_history.append(("bot", response))
-            
+
             # Save to database if user is logged in
             if st.session_state.authenticated:
                 conn = sqlite3.connect('legal_aid.db')
@@ -303,57 +310,57 @@ def show_chatbot_page():
                          (st.session_state.user_id, user_input, response, language))
                 conn.commit()
                 conn.close()
-            
+
             st.rerun()
 
 def show_lawyer_marketplace():
     st.title("👨‍⚖️ Lawyer Marketplace")
-    
+
     # Filters
     col1, col2, col3 = st.columns(3)
     with col1:
-        specialization_filter = st.selectbox("Specialization", 
+        specialization_filter = st.selectbox("Specialization",
             ["All", "Family Law", "Criminal Law", "Property Law", "Consumer Rights", "Employment Law"])
     with col2:
-        location_filter = st.selectbox("Location", 
+        location_filter = st.selectbox("Location",
             ["All", "Mumbai", "Delhi", "Bangalore", "Chennai", "Pune"])
     with col3:
-        fee_filter = st.selectbox("Fee Range", 
+        fee_filter = st.selectbox("Fee Range",
             ["All", "₹0-500", "₹500-1500", "₹1500-3000", "₹3000+"])
-    
+
     # Get lawyers from database
     conn = sqlite3.connect('legal_aid.db')
     query = "SELECT * FROM lawyers WHERE verified = 1"
     params = []
-    
+
     if specialization_filter != "All":
         query += " AND specialization = ?"
         params.append(specialization_filter)
     if location_filter != "All":
         query += " AND location = ?"
         params.append(location_filter)
-    
+
     lawyers_df = pd.read_sql_query(query, conn, params=params)
     conn.close()
-    
+
     if lawyers_df.empty:
         st.info("No lawyers found matching your criteria.")
         return
-    
+
     # Display lawyers
     for idx, lawyer in lawyers_df.iterrows():
         with st.container():
             st.markdown(f"""
             <div class="lawyer-card">
                 <h4>{lawyer['name']} ⭐ {lawyer['rating']}/5.0</h4>
-                <p><strong>Specialization:</strong> {lawyer['specialization']} | 
-                   <strong>Experience:</strong> {lawyer['experience']} years | 
+                <p><strong>Specialization:</strong> {lawyer['specialization']} |
+                   <strong>Experience:</strong> {lawyer['experience']} years |
                    <strong>Location:</strong> {lawyer['location']}</p>
-                <p><strong>Fee Range:</strong> {lawyer['fee_range']} | 
+                <p><strong>Fee Range:</strong> {lawyer['fee_range']} |
                    <strong>Languages:</strong> {lawyer['languages']}</p>
             </div>
             """, unsafe_allow_html=True)
-            
+
             col1, col2, col3 = st.columns(3)
             with col1:
                 if st.button(f"Book Consultation", key=f"book_{lawyer['id']}"):
@@ -362,11 +369,11 @@ def show_lawyer_marketplace():
                         # Here you would typically save the consultation request
                     else:
                         st.warning("Please login to book consultation")
-            
+
             with col2:
                 if st.button(f"View Profile", key=f"profile_{lawyer['id']}"):
                     st.info(f"Viewing profile of {lawyer['name']}")
-            
+
             with col3:
                 if st.button(f"Chat", key=f"chat_{lawyer['id']}"):
                     if st.session_state.authenticated:
@@ -376,30 +383,30 @@ def show_lawyer_marketplace():
 
 def show_case_tracking():
     st.title("📋 Case Tracking & Management")
-    
+
     if not st.session_state.authenticated:
         st.warning("Please login to access case tracking")
         return
-    
+
     # Get user cases
     conn = sqlite3.connect('legal_aid.db')
     cases_df = pd.read_sql_query("""
-        SELECT c.*, l.name as lawyer_name 
-        FROM cases c 
-        LEFT JOIN lawyers l ON c.lawyer_id = l.id 
+        SELECT c.*, l.name as lawyer_name
+        FROM cases c
+        LEFT JOIN lawyers l ON c.lawyer_id = l.id
         WHERE c.user_id = ?
     """, conn, params=[st.session_state.user_id])
     conn.close()
-    
+
     # Add new case
     with st.expander("➕ Add New Case"):
         with st.form("new_case_form"):
             case_title = st.text_input("Case Title")
             case_description = st.text_area("Case Description")
-            case_category = st.selectbox("Category", 
+            case_category = st.selectbox("Category",
                 ["Family Law", "Criminal Law", "Property Law", "Consumer Rights", "Employment Law"])
             case_priority = st.selectbox("Priority", ["Low", "Medium", "High", "Urgent"])
-            
+
             if st.form_submit_button("Create Case"):
                 conn = sqlite3.connect('legal_aid.db')
                 c = conn.cursor()
@@ -410,14 +417,14 @@ def show_case_tracking():
                 conn.close()
                 st.success("Case created successfully!")
                 st.rerun()
-    
+
     # Display existing cases
     if cases_df.empty:
         st.info("No cases found. Create your first case above.")
     else:
         for idx, case in cases_df.iterrows():
             status_class = f"status-{case['status'].lower()}" if pd.notna(case['status']) else "status-pending"
-            
+
             st.markdown(f"""
             <div class="feature-card">
                 <h4>{case['title']} <span class="case-status {status_class}">{case['status'] or 'Pending'}</span></h4>
@@ -427,7 +434,7 @@ def show_case_tracking():
                 <p><strong>Created:</strong> {case['created_at']}</p>
             </div>
             """, unsafe_allow_html=True)
-            
+
             col1, col2, col3 = st.columns(3)
             with col1:
                 if st.button(f"Update Status", key=f"update_{case['id']}"):
@@ -441,7 +448,7 @@ def show_case_tracking():
 
 def show_legal_awareness():
     st.title("📖 Legal Awareness Portal")
-    
+
     # Fundamental Rights
     with st.expander("🏛️ Fundamental Rights in India"):
         st.markdown("""
@@ -453,7 +460,7 @@ def show_legal_awareness():
         5. **Cultural and Educational Rights** (Articles 29-30)
         6. **Right to Constitutional Remedies** (Article 32)
         """)
-    
+
     # Government Schemes
     with st.expander("🏛️ Government Legal Aid Schemes"):
         st.markdown("""
@@ -464,11 +471,11 @@ def show_legal_awareness():
         - **Free Legal Aid for Women, Children, SC/ST**
         - **Lok Adalats for Quick Justice**
         """)
-    
+
     # Common Legal Procedures
     with st.expander("📋 Common Legal Procedures"):
         tabs = st.tabs(["Criminal Law", "Civil Law", "Family Law", "Consumer Rights"])
-        
+
         with tabs[0]:
             st.markdown("""
             ### Criminal Law Procedures:
@@ -477,7 +484,7 @@ def show_legal_awareness():
             - **Court Proceedings**: What to expect
             - **Victim Rights**: Compensation and support
             """)
-        
+
         with tabs[1]:
             st.markdown("""
             ### Civil Law Procedures:
@@ -486,7 +493,7 @@ def show_legal_awareness():
             - **Rent Disputes**: Tenant and landlord rights
             - **Recovery Suits**: Money recovery process
             """)
-        
+
         with tabs[2]:
             st.markdown("""
             ### Family Law Procedures:
@@ -495,7 +502,7 @@ def show_legal_awareness():
             - **Child Custody**: Legal guidelines
             - **Maintenance Laws**: Rights and obligations
             """)
-        
+
         with tabs[3]:
             st.markdown("""
             ### Consumer Rights:
@@ -507,28 +514,28 @@ def show_legal_awareness():
 
 def show_login_page():
     st.title("🔐 Login / Register")
-    
+
     # Add a back to home button
     if st.button("← Back to Home"):
         st.session_state.current_page = "Home"
         st.rerun()
-    
+
     tab1, tab2 = st.tabs(["🔑 Login", "📝 Register"])
-    
+
     with tab1:
         st.subheader("Welcome Back!")
         st.write("Please enter your credentials to access your account.")
-        
+
         with st.form("login_form"):
             username = st.text_input("👤 Username", placeholder="Enter your username")
             password = st.text_input("🔒 Password", type="password", placeholder="Enter your password")
-            
+
             col1, col2 = st.columns(2)
             with col1:
                 login_button = st.form_submit_button("🚀 Login", use_container_width=True, type="primary")
             with col2:
                 demo_button = st.form_submit_button("🎯 Demo Login", use_container_width=True)
-            
+
             if login_button:
                 if username and password:
                     result = authenticate_user(username, password)
@@ -543,7 +550,7 @@ def show_login_page():
                         st.error("❌ Invalid credentials. Please try again.")
                 else:
                     st.warning("⚠️ Please enter both username and password.")
-            
+
             elif demo_button:
                 # Demo login for testing
                 st.session_state.authenticated = True
@@ -552,31 +559,31 @@ def show_login_page():
                 st.success("✅ Demo login successful! Welcome to the demo!")
                 st.session_state.current_page = "Home"
                 st.rerun()
-        
+
         st.markdown("---")
         st.info("💡 **Demo Access**: Click 'Demo Login' to explore the platform without creating an account.")
-    
+
     with tab2:
         st.subheader("Create New Account")
         st.write("Join our platform to access legal aid services.")
-        
+
         with st.form("register_form"):
             col1, col2 = st.columns(2)
-            
+
             with col1:
                 new_username = st.text_input("👤 Choose Username", placeholder="Enter desired username")
                 new_password = st.text_input("🔒 Choose Password", type="password", placeholder="Minimum 6 characters")
                 email = st.text_input("📧 Email Address", placeholder="your.email@example.com")
                 phone = st.text_input("📱 Phone Number", placeholder="+91-XXXXXXXXXX")
-            
+
             with col2:
                 confirm_password = st.text_input("🔒 Confirm Password", type="password", placeholder="Re-enter password")
                 location = st.selectbox("📍 Location", ["Mumbai", "Delhi", "Bangalore", "Chennai", "Pune", "Hyderabad", "Kolkata", "Other"])
                 language = st.selectbox("🗣️ Preferred Language", ["English", "Hindi", "Tamil", "Telugu", "Bengali", "Malayalam", "Kannada", "Gujarati", "Marathi"])
                 user_type = st.selectbox("👥 Account Type", ["Citizen", "Lawyer", "Legal Aid Worker"])
-            
+
             register_button = st.form_submit_button("🎉 Create Account", use_container_width=True, type="primary")
-            
+
             if register_button:
                 if not all([new_username, new_password, confirm_password, email, phone]):
                     st.error("❌ Please fill in all required fields.")
@@ -592,7 +599,7 @@ def show_login_page():
                         st.balloons()
                     else:
                         st.error("❌ Username already exists. Please choose a different username.")
-        
+
         st.markdown("---")
         st.info("📋 **Account Types**:\n- **Citizen**: Access legal aid services\n- **Lawyer**: Provide legal services\n- **Legal Aid Worker**: Manage and coordinate services")
 
@@ -601,13 +608,13 @@ def main():
     init_database()
     init_session_state()
     init_sample_data()
-    
+
     # Sidebar navigation
     st.sidebar.title("⚖️ Legal Aid India")
-    
+
     if st.session_state.authenticated:
         st.sidebar.success(f"✅ Welcome!\n**User ID:** {st.session_state.user_id}\n**Type:** {st.session_state.user_type}")
-        
+
         if st.sidebar.button("🚪 Logout", use_container_width=True, type="primary"):
             st.session_state.authenticated = False
             st.session_state.user_id = None
@@ -618,12 +625,12 @@ def main():
             st.rerun()
     else:
         st.sidebar.info("👤 **Not logged in**\nSome features require authentication")
-        
+
         # Quick login widget in sidebar
         with st.sidebar.expander("🔐 Quick Login"):
             quick_username = st.text_input("Username", key="sidebar_username", placeholder="Your username")
             quick_password = st.text_input("Password", type="password", key="sidebar_password", placeholder="Your password")
-            
+
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("Login", key="sidebar_login", use_container_width=True):
@@ -639,7 +646,7 @@ def main():
                             st.error("❌ Invalid credentials")
                     else:
                         st.warning("⚠️ Enter credentials")
-            
+
             with col2:
                 if st.button("Demo", key="sidebar_demo", use_container_width=True):
                     st.session_state.authenticated = True
@@ -647,9 +654,9 @@ def main():
                     st.session_state.user_type = "Citizen"
                     st.success("✅ Demo mode!")
                     st.rerun()
-    
+
     st.sidebar.markdown("---")
-    
+
     # Navigation menu
     pages = {
         "🏠 Home": "Home",
@@ -658,28 +665,28 @@ def main():
         "📋 Case Tracking": "Cases",
         "📖 Legal Awareness": "Awareness"
     }
-    
+
     if not st.session_state.authenticated:
         pages["🔐 Login / Register"] = "Login"
-    
+
     # Use radio buttons for better navigation control
     current_index = 0
     if st.session_state.current_page in pages.values():
         current_index = list(pages.values()).index(st.session_state.current_page)
-    
+
     selected_page = st.sidebar.radio(
         "🧭 Navigate to:",
         list(pages.keys()),
         index=current_index,
         key="main_navigation"
     )
-    
+
     # Update current page when selection changes
     new_page = pages[selected_page]
     if new_page != st.session_state.current_page:
         st.session_state.current_page = new_page
         st.rerun()
-    
+
     # Add some helpful information in sidebar
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 🆘 Quick Help")
@@ -689,11 +696,11 @@ def main():
     - **Women Helpline**: 1091
     - **Cyber Crime**: 1930
     """)
-    
+
     if not st.session_state.authenticated:
         st.sidebar.markdown("---")
         st.sidebar.info("💡 **Tip**: Use Demo mode to explore all features without creating an account!")
-    
+
     # Route to appropriate page
     if st.session_state.current_page == "Home":
         show_home_page()
@@ -707,7 +714,7 @@ def main():
         show_legal_awareness()
     elif st.session_state.current_page == "Login":
         show_login_page()
-    
+
     # Footer
     st.markdown("---")
     st.markdown("""
