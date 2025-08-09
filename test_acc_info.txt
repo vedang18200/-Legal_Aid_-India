@@ -1,0 +1,23 @@
+Username = Durgesh
+Password =Durgesh@123
+type = citizen
+____________________
+Username = Jolly
+Password =Joly@123
+type = Laywer
+____________________
+Username = Vedang
+Password = Vedang@18
+type = citizen
+
+
+
+1. Shows error as "Error loading cases: too many values to unpack (expected 11)"
+when login as citizen acc and click on my case.
+2. The citizen cant se my created lawyer acc at lawyer market
+3. From both laywer and citizen side the message system should have better GUI in chatting system and aslo should have a shortcut to make or plan a appointment.
+4. From lawyer side the schedule appointment give error "➕ Schedule New Consultation" as "Missing Submit Button
+This form has no submit button, which means that user interactions will never be sent to your Streamlit app.
+To create a submit button, use the st.form_submit_button() function.
+For more information, refer to the documentation for forms."
+ and let me know if you need any database schemma i m using subase for it
