@@ -107,7 +107,8 @@ pytest --maxfail=1 --disable-warnings -q
 
 ## 📜 License
 
-(Add your chosen license here, e.g., MIT, Apache 2.0)
+This project is licensed under the [MIT License](LICENSE).
+
 
 ---
 
