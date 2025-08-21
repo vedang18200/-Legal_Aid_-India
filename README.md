@@ -2,6 +2,7 @@
 
 **Legal Aid India** is a Streamlit-powered web application that streamlines legal service delivery, allowing lawyers to manage profiles, consultations, cases, and client interactions efficiently.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ---
 
 ## 🚀 Features
