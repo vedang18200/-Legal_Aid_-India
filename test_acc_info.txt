@@ -11,13 +11,67 @@ Password = Vedang@18
 type = citizen
 
 
+https://claude.ai/share/1fc1c5d3-2af8-411f-ba2e-d37e7c97db6e
 
-1. Shows error as "Error loading cases: too many values to unpack (expected 11)"
-when login as citizen acc and click on my case.
-2. The citizen cant se my created lawyer acc at lawyer market
-3. From both laywer and citizen side the message system should have better GUI in chatting system and aslo should have a shortcut to make or plan a appointment.
-4. From lawyer side the schedule appointment give error "➕ Schedule New Consultation" as "Missing Submit Button
-This form has no submit button, which means that user interactions will never be sent to your Streamlit app.
-To create a submit button, use the st.form_submit_button() function.
-For more information, refer to the documentation for forms."
- and let me know if you need any database schemma i m using subase for it
+legal_aid_india/
+├── main.py
+├── requirements.txt
+├── config/
+│   ├── __init__.py
+│   ├── settings.py
+│   └── styles.py
+├── database/
+│   ├── __init__.py
+│   └── db_manager.py
+├── utils/
+│   ├── __init__.py
+│   ├── session_manager.py
+│   └── auth_manager.py
+├── services/
+│   ├── __init__.py
+│   ├── chatbot_service.py
+│   ├── messaging_service.py
+│   ├── case_service.py
+│   ├── consultation_service.py
+│   └── lawyer_service.py
+├── components/
+│   ├── __init__.py
+│   ├── sidebar.py
+│   ├── footer.py
+│   └── ui_components.py
+└── pages/
+    ├── __init__.py
+    ├── router.py
+    ├── public/
+    │   ├── __init__.py
+    │   ├── home.py
+    │   ├── chatbot.py
+    │   ├── login.py
+    │   ├── lawyer_marketplace.py
+    │   └── legal_awareness.py
+    ├── citizen/
+    │   ├── __init__.py
+    │   ├── cases.py
+    │   ├── consultations.py
+    │   └── profile.py
+    ├── lawyer/
+    │   ├── __init__.py
+    │   ├── dashboard.py
+    │   ├── available_cases.py
+    │   ├── lawyer_cases.py
+    │   ├── clients.py
+    │   ├── appointments.py
+    │   ├── earnings.py
+    │   ├── resources.py
+    │   └── lawyer_profile.py
+    ├── messaging/
+    │   ├── __init__.py
+    │   └── messages.py
+    └── admin/
+        ├── __init__.py
+        └── admin_dashboard.py
+
+solve the following problems
+1. from citizen login in message section in dm page it shows "Database query error: relation "blocked_users" does not exist LINE 1: SELECT id FROM blocked_users ^"
+2. from lawyer login the appointment section shows these "AttributeError: module 'streamlit' has no attribute 'datetime_input'"
+3. from lawyer side in profile section it gives error as Error loading profile: too many values to unpack (expected 8)
